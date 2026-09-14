@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkApp — Connect &amp; Chat Professionals</title>
+<link rel="icon" href="icon.png">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ SPLASH / WELCOME ============ -->
+<div id="splashScreen" class="splash-screen">
+  <div class="splash-inner">
+    <img src="icon.png" alt="LinkApp" class="splash-logo">
+    <h1 class="splash-title">LINK<span>APP</span></h1>
+    <p class="splash-tag">Connect &amp; Chat Professionals</p>
+    <div class="splash-actions">
+      <button class="btn btn-brand btn-lg w-100" id="btnGoLogin">Log in</button>
+      <button class="btn btn-outline-brand btn-lg w-100" id="btnGoSignup">Create account</button>
+      <button class="btn btn-link w-100 text-muted-2" id="btnDemoAccounts">Try a demo account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AUTH SCREENS ============ -->
+<div id="authScreen" class="auth-screen d-none">
+  <div class="auth-card">
+    <img src="icon.png" class="auth-logo" alt="LinkApp">
+
+    <!-- LOGIN -->
+    <div id="loginPane">
+      <h2 class="auth-heading">Welcome back</h2>
+      <p class="auth-sub">Log in to keep building your network.</p>
+      <form id="loginForm" novalidate>
+        <div class="mb-3">
+          <label class="form-label">Email or username</label>
+          <input type="text" class="form-control" id="loginId" required>
+          <div class="invalid-feedback">Enter your email or username.</div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="loginPassword" required minlength="4">
+          <div class="invalid-feedback">Password must be at least 4 characters.</div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+            <label class="form-check-label small text-muted-2" for="rememberMe">Remember me</label>
+          </div>
+          <a href="#" class="small link-brand" id="forgotPasswordLink">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn-brand w-100">Log in</button>
+      </form>
+      <p class="auth-switch">New here? <a href="#" id="toSignup">Create an account</a></p>
+      <p class="auth-switch"><a href="#" id="toDemoFromLogin">Use a demo account instead</a></p>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupPane" class="d-none">
+      <h2 class="auth-heading">Create your account</h2>
+      <p class="auth-sub">One profile for chatting and networking.</p>
+      <form id="signupForm" novalidate>
+        <div class="mb-3">
+          <label class="form-label">Full name</label>
+          <input type="text" class="form-control" id="signupName" required>
+          <div class="invalid-feedback">Please enter your name.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-control" id="signupUsername" required pattern="^[a-zA-Z0-9_\.]{3,20}$">
+          <div class="invalid-feedback">3-20 characters, letters/numbers/underscore only.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="signupEmail" required>
+          <div class="invalid-feedback">Enter a valid email address.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="signupPassword" required minlength="4">
+          <div class="invalid-feedback">Minimum 4 characters.</div>
+        </div>
+        <button type="submit" class="btn btn-brand w-100">Create account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="#" id="toLogin">Log in</a></p>
+    </div>
+
+    <!-- DEMO ACCOUNTS -->
+    <div id="demoPane" class="d-none">
+      <h2 class="auth-heading">Demo accounts</h2>
+      <p class="auth-sub">Jump straight in and explore with a sample profile.</p>
+      <div id="demoAccountList" class="demo-account-list"></div>
+      <p class="auth-switch"><a href="#" id="toLoginFromDemo">Back to login</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ONBOARDING MODAL ============ -->
+<div class="modal fade" id="onboardingModal" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Set up your profile</h5>
+      </div>
+      <div class="modal-body">
+        <div id="onboardStep1">
+          <p class="text-muted-2 small mb-3">Step 1 of 2 — the basics</p>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Headline / job title</label>
+              <input type="text" class="form-control" id="obHeadline" placeholder="e.g. Frontend Developer">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Company</label>
+              <input type="text" class="form-control" id="obCompany" placeholder="e.g. Freelance">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" id="obLocation" placeholder="City, Country">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" id="obPhone" placeholder="Optional">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Bio</label>
+              <textarea class="form-control" id="obBio" rows="2" placeholder="Tell people what you do"></textarea>
+            </div>
+          </div>
+        </div>
+        <div id="onboardStep2" class="d-none">
+          <p class="text-muted-2 small mb-3">Step 2 of 2 — interests</p>
+          <p class="small mb-2">Pick a few interests to personalize your feed:</p>
+          <div id="obInterests" class="interest-chip-wrap"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-brand d-none" id="obBack">Back</button>
+        <button class="btn btn-brand ms-auto" id="obNext">Continue</button>
+        <button class="btn btn-brand ms-auto d-none" id="obFinish">Finish setup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN APP SHELL ============ -->
+<div id="appShell" class="d-none">
+
+  <!-- Top bar -->
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand" data-route="#/home">
+        <img src="icon.png" class="topbar-logo" alt="LinkApp">
+        <span class="d-none d-md-inline">LinkApp</span>
+      </div>
+      <div class="topbar-search">
+        <i class="bi bi-search"></i>
+        <input type="text" id="globalSearchInput" placeholder="Search people, posts, jobs, companies…" autocomplete="off" aria-label="Search LinkApp">
+        <div id="searchSuggestions" class="search-suggestions d-none"></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-wallet-chip d-none d-sm-flex" id="topbarWalletChip" title="LinkCoins wallet" aria-label="LinkCoins balance">
+          <i class="bi bi-coin"></i><span id="topbarWalletBalance">0</span>
+        </button>
+        <button class="topbar-icon-btn d-md-none" id="mobileSearchBtn" title="Search" aria-label="Search"><i class="bi bi-search"></i></button>
+        <button class="topbar-icon-btn" id="themeToggleBtn" title="Toggle theme" aria-label="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
+        <button class="topbar-icon-btn" data-route="#/notifications" title="Notifications" aria-label="Notifications">
+          <i class="bi bi-bell"></i><span class="badge-dot d-none" id="notifBadge"></span>
+        </button>
+        <button class="topbar-icon-btn" data-route="#/messages" title="Messages" aria-label="Messages">
+          <i class="bi bi-chat-dots"></i><span class="badge-dot d-none" id="msgBadge"></span>
+        </button>
+        <div class="dropdown">
+          <button class="topbar-avatar-btn" data-bs-toggle="dropdown" aria-label="Account menu">
+            <img id="topbarAvatar" src="" class="topbar-avatar">
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#/profile"><i class="bi bi-person me-2"></i>View profile</a></li>
+            <li><a class="dropdown-item" href="#/settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><a class="dropdown-item" href="#/saved"><i class="bi bi-bookmark me-2"></i>Saved items</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="switchAccountBtn"><i class="bi bi-people me-2"></i>Switch account</a></li>
+            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i>Log out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="app-body">
+    <!-- Left sidebar (desktop) -->
+    <aside class="sidebar d-none d-lg-flex">
+      <nav class="sidebar-nav">
+        <a href="#/home" class="sidebar-link" data-nav="home"><i class="bi bi-house"></i><span>Home</span></a>
+        <a href="#/wallet" class="sidebar-link" data-nav="wallet"><i class="bi bi-wallet2"></i><span>Wallet</span><span class="badge-count wallet-nav-badge d-none" id="navWalletBadge"></span></a>
+        <a href="#/network" class="sidebar-link" data-nav="network"><i class="bi bi-people"></i><span>Network</span><span class="badge-count d-none" id="navNetworkBadge"></span></a>
+        <a href="#/messages" class="sidebar-link" data-nav="messages"><i class="bi bi-chat-dots"></i><span>Messages</span><span class="badge-count d-none" id="navMsgBadge"></span></a>
+        <a href="#/communities" class="sidebar-link" data-nav="communities"><i class="bi bi-diagram-3"></i><span>Communities</span></a>
+        <a href="#/channels" class="sidebar-link" data-nav="channels"><i class="bi bi-broadcast"></i><span>Channels</span></a>
+        <a href="#/jobs" class="sidebar-link" data-nav="jobs"><i class="bi bi-briefcase"></i><span>Jobs</span></a>
+        <a href="#/companies" class="sidebar-link" data-nav="companies"><i class="bi bi-building"></i><span>Companies</span></a>
+        <a href="#/articles" class="sidebar-link" data-nav="articles"><i class="bi bi-file-earmark-text"></i><span>Articles</span></a>
+        <a href="#/events" class="sidebar-link" data-nav="events"><i class="bi bi-calendar-event"></i><span>Events</span></a>
+        <a href="#/notifications" class="sidebar-link" data-nav="notifications"><i class="bi bi-bell"></i><span>Notifications</span><span class="badge-count d-none" id="navNotifBadge"></span></a>
+        <a href="#/services" class="sidebar-link" data-nav="services"><i class="bi bi-tools"></i><span>Services</span></a>
+        <a href="#/saved" class="sidebar-link" data-nav="saved"><i class="bi bi-bookmark"></i><span>Saved</span></a>
+        <a href="#/profile" class="sidebar-link" data-nav="profile"><i class="bi bi-person-circle"></i><span>Profile</span></a>
+        <a href="#/settings" class="sidebar-link" data-nav="settings"><i class="bi bi-gear"></i><span>Settings</span></a>
+      </nav>
+      <button class="btn btn-brand w-100 mt-2" id="sidebarPostBtn"><i class="bi bi-plus-lg me-1"></i>Create</button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content" id="mainContent"></main>
+
+    <!-- Right widgets -->
+    <aside class="right-rail d-none d-xl-block" id="rightRail"></aside>
+  </div>
+
+  <!-- Mobile bottom nav -->
+  <nav class="bottom-nav d-lg-none">
+    <a href="#/home" class="bottom-nav-link" data-nav="home"><i class="bi bi-house"></i><span>Home</span></a>
+    <a href="#/network" class="bottom-nav-link" data-nav="network"><i class="bi bi-people"></i><span>Network</span></a>
+    <a href="#/messages" class="bottom-nav-link" data-nav="messages"><i class="bi bi-chat-dots"></i><span>Messages</span><span class="badge-dot d-none" id="bottomMsgBadge"></span></a>
+    <a href="#/jobs" class="bottom-nav-link" data-nav="jobs"><i class="bi bi-briefcase"></i><span>Jobs</span></a>
+    <a href="#/profile" class="bottom-nav-link" data-nav="profile"><i class="bi bi-person-circle"></i><span>Profile</span></a>
+  </nav>
+  <button class="fab" id="fabBtn" aria-label="Create new"><i class="bi bi-plus-lg"></i></button>
+  <div class="fab-menu d-none" id="fabMenu">
+    <button data-fab="post"><i class="bi bi-card-text"></i>Post</button>
+    <button data-fab="status"><i class="bi bi-circle-square"></i>Status</button>
+    <button data-fab="group"><i class="bi bi-people-fill"></i>Group</button>
+    <button data-fab="job"><i class="bi bi-briefcase-fill"></i>Job</button>
+    <button data-fab="event"><i class="bi bi-calendar-plus"></i>Event</button>
+    <button data-fab="article"><i class="bi bi-file-text"></i>Article</button>
+  </div>
+</div>
+
+<!-- ============ TOAST CONTAINER ============ -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:2000" id="toastContainer"></div>
+
+<!-- ============ MODALS ============ -->
+<div id="modalsRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="db.js"></script>
+<script src="seed.js"></script>
+<script src="ui.js"></script>
+<script src="auth.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
