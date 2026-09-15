@@ -268,6 +268,19 @@ function connectLabel(myId, otherId){
 }
 
 // generic delegated click handler for common data-attrs across pages
+// Positions a small floating bar (emoji/reaction picker) above an anchor
+// element, clamped so it never overflows past the left/right screen edges —
+// important on narrow phones where these bars can be wider than the viewport.
+function positionFloatingBar(bar, anchorRect){
+  const barWidth = bar.getBoundingClientRect().width;
+  const margin = 12;
+  let left = anchorRect.left + window.scrollX;
+  const maxLeft = window.scrollX + document.documentElement.clientWidth - barWidth - margin;
+  left = Math.max(window.scrollX + margin, Math.min(left, maxLeft));
+  bar.style.top = (anchorRect.top + window.scrollY - 46) + 'px';
+  bar.style.left = left + 'px';
+}
+
 function wireCommonNav(container){
   container.querySelectorAll('[data-goto-profile]').forEach(el=>el.addEventListener('click',(e)=>{ e.stopPropagation(); location.hash='#/profile/'+el.dataset.gotoProfile; }));
   container.querySelectorAll('[data-goto-job]').forEach(el=>el.addEventListener('click',(e)=>{ e.stopPropagation(); location.hash='#/jobs/'+el.dataset.gotoJob; }));
@@ -499,8 +512,7 @@ function wireFeedEvents(container){
       bar.innerHTML = Object.entries(REACTIONS).map(([k,e])=>`<button data-pick-reaction="${k}">${e}</button>`).join('');
       document.body.appendChild(bar);
       const rect = btn.getBoundingClientRect();
-      bar.style.top = (rect.top + window.scrollY - 46)+'px';
-      bar.style.left = (rect.left + window.scrollX)+'px';
+      positionFloatingBar(bar, rect);
       bar.querySelectorAll('[data-pick-reaction]').forEach(b=>{
         b.addEventListener('click', ()=>{ setReaction(postId, b.dataset.pickReaction); bar.remove(); });
       });
@@ -1387,7 +1399,7 @@ function wireMessagesEvents(main){
     bar.innerHTML = emojis.map(e=>`<button data-emoji="${e}">${e}</button>`).join('');
     document.body.appendChild(bar);
     const rect = main.querySelector('#emojiBtn').getBoundingClientRect();
-    bar.style.top=(rect.top+window.scrollY-46)+'px'; bar.style.left=(rect.left+window.scrollX)+'px';
+    positionFloatingBar(bar, rect);
     bar.querySelectorAll('[data-emoji]').forEach(b=>b.addEventListener('click',()=>{ msgInput.value += b.dataset.emoji; bar.remove(); msgInput.focus(); }));
     setTimeout(()=>document.addEventListener('click', function cl(ev){ if(!bar.contains(ev.target)){bar.remove(); document.removeEventListener('click',cl);} }),0);
   });
@@ -1473,7 +1485,8 @@ function wireMessagesEvents(main){
     bar.innerHTML = stickers.map(s=>`<button data-pick-sticker="${s}" style="font-size:1.5rem">${s}</button>`).join('');
     document.body.appendChild(bar);
     const rect = main.querySelector('#stickerBtn').getBoundingClientRect();
-    bar.style.top=(rect.top+window.scrollY-90)+'px'; bar.style.left=(rect.left+window.scrollX)+'px';
+    positionFloatingBar(bar, rect);
+    bar.style.top = (parseFloat(bar.style.top) - 44) + 'px'; // extra clearance for the taller sticker grid
     bar.querySelectorAll('[data-pick-sticker]').forEach(b=>b.addEventListener('click',()=>{
       sendMessage(activeConvId, me().id, b.dataset.pickSticker, {type:'sticker'});
       bar.remove();
@@ -1525,7 +1538,7 @@ function wireMessagesEvents(main){
         + `<button data-msg-delete="1" title="Delete"><i class="bi bi-trash"></i></button>`;
       document.body.appendChild(bar);
       const rect = bubble.getBoundingClientRect();
-      bar.style.top=(rect.top+window.scrollY-46)+'px'; bar.style.left=(rect.left+window.scrollX)+'px';
+      positionFloatingBar(bar, rect);
       bar.querySelectorAll('[data-msg-react]').forEach(b=>b.addEventListener('click',()=>{
         m.reactions = m.reactions||{}; m.reactions[me().id]=b.dataset.msgReact; saveDB(); bar.remove(); renderMessagesPage(document.getElementById('mainContent'), activeConvId);
       }));
